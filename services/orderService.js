@@ -1,4 +1,3 @@
-// services/orderService.js
 
 const { calculateDiscount, calculateTax } = require('../utils/calc');
 
@@ -12,11 +11,10 @@ function createOrder(items) {
   }, 0);
 
   const discount = calculateDiscount(totalAmount);
-  const amountAfterDiscount = totalAmount - discount;
 
-  const tax = calculateTax(amountAfterDiscount);
+  const tax = calculateTax(totalAmount);
 
-  const finalAmount = amountAfterDiscount + tax;
+  const finalAmount = totalAmount - discount + tax;
 
   return {
     totalAmount,
