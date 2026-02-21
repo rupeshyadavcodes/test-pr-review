@@ -7,29 +7,19 @@ async function processLocations(locations) {
     throw new Error('Locations required');
   }
 
-  // Safety guard
-  if (locations.length > 500) {
-    throw new Error('Too many locations in single request');
-  }
-
   const timestamps = locations.map(l => l.timestamp);
   const minTime = Math.min(...timestamps);
-  const maxTime = Math.max(...timestamps);
-
-  // Single query
-  const existingBlocks = await LocationBlock.find({
-    startTime: { $lte: maxTime },
-    endTime: { $gte: minTime }
-  });
 
   const bulkOps = [];
-  const blockMap = new Map();
-
-  existingBlocks.forEach(block => {
-    blockMap.set(block._id.toString(), block);
-  });
 
   for (const location of locations) {
+
+
+    const existingBlocks = await LocationBlock.find({
+      startTime: { $gte: minTime },  
+      endTime: { $lte: Date.now() }
+    });
+
     let matchedBlock = null;
 
     for (const block of existingBlocks) {
@@ -61,6 +51,7 @@ async function processLocations(locations) {
       });
     }
   }
+
 
   if (bulkOps.length > 0) {
     await LocationBlock.bulkWrite(bulkOps);
